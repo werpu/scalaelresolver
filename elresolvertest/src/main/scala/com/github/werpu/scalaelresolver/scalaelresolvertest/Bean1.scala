@@ -42,5 +42,5 @@ class Bean1 {
     _prop2 = in
   }
 
-  def doSubmitMe(){}
+  def doSubmitMe {}
 }
