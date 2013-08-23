@@ -57,7 +57,7 @@ class ScalaELResolver extends ELResolver {
         //note every attribute of a scala object
         //is set as protected or private
         //with two encapsulating functions
-        var methodName: String = method.getName.replaceAll("\\_\\$eq", "")
+        var methodName = method.getName.replaceAll("\\_\\$eq", "")
         alreadyProcessed += methodName
         //TODO we probably have to work the return values in
         ret += makeDescriptor(methodName, methodName, base.getClass)

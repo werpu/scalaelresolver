@@ -8,7 +8,7 @@
     <url>http://maven.apache.org</url>
     <parent>
         <groupId>com.github.werpu.scalaelresolver</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>elresolverparent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
