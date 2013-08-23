@@ -17,10 +17,11 @@ package com.github.werpu.scalaelresolver.scalaelresolvertest
 
 import javax.inject.{Inject, Named}
 import javax.enterprise.context.RequestScoped
+import java.io.Serializable
 
 @Named
 @RequestScoped
-class Bean3 {
+class Bean3 extends Serializable {
   var test1 = "hello world from bean3"
   var test2 = "hello world from bean 3 test2"
 

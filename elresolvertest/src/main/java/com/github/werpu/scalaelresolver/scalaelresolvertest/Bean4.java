@@ -17,10 +17,11 @@ package com.github.werpu.scalaelresolver.scalaelresolvertest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
+import java.io.Serializable;
 
 @Named
 @RequestScoped
-public class Bean4 {
+public class Bean4 implements Serializable {
     private String test4 = "hello world from bean4";
 
     public String getTest4() {
