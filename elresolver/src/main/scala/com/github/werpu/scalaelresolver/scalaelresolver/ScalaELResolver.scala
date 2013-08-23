@@ -158,7 +158,7 @@ class ScalaELResolver extends ELResolver {
         null
       }
 
-      def setterName = methodName + "_$eq"
+      val setterName = methodName + "_$eq"
       val setMethod = ReflectUtil.getAllMethods(base.getClass(), methodName, 1)
       val setterMethod = ReflectUtil.getAllMethods(base.getClass(), setterName, 1)
 
@@ -172,7 +172,7 @@ class ScalaELResolver extends ELResolver {
         ReflectUtil.executeMethod(base, setterName, transformedValue)
         elContext.setPropertyResolved(true)
       }
-
+      null
     }
   }
 

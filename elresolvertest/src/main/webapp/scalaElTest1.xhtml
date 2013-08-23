@@ -23,9 +23,13 @@
     <ui:define name="content">
          <h2>Hello world from bean 1</h2>
         #{bean1.prop1}
+        #{bean1.bean2.bean2test1}
+
         <h:form id="myForm" prependId="false">
             <h:inputText value="#{bean1.prop2}" />
             <h:inputText value="#{bean1.prop3}" />
+            <h:inputText value="#{bean1.bean2.bean2test2}" />
+
             <h:commandLink value="[Press me for submit]" action="#{bean1.doSubmitMe}"/>
         </h:form>
 
