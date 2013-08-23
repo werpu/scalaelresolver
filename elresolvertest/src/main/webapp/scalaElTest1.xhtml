@@ -29,6 +29,7 @@
             <li>#{bean3.bean4.test4}</li>
             <li>#{bean5.hello1}</li>
             <li>#{bean5.hello2}</li>
+            <li>#{bean5.hello3}</li>
         </ol>
 
         <h:form id="myForm" prependId="false">
@@ -36,6 +37,7 @@
             <h:inputText value="#{bean1.prop3}"/>
             <h:inputText value="#{bean1.bean2.bean2test2}"/>
             <h:inputText value="#{bean3.test2}"/>
+            <h:inputText value="#{bean5.hello3}"/>
 
 
             <h:commandLink value="[Press me for submit]" action="#{bean1.doSubmitMe}"/>
