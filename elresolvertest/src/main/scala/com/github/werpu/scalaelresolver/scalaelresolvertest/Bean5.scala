@@ -23,5 +23,5 @@ import java.io.Serializable
 @RequestScoped
 class Bean5 extends BaseBean with Serializable  {
   var hello2 = "hello from bean5"
-  var hello3:Int = 1
+  var hello3 = 1
 }
