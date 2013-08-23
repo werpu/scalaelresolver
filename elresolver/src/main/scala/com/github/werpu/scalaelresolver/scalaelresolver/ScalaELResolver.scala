@@ -6,6 +6,7 @@ import java.lang.reflect.Method
 
 import collection.JavaConversions._
 import collection.mutable.HashSet
+import com.github.werpu.scalaelresolver.util.ReflectUtil
 
 /**
  *
@@ -78,7 +79,15 @@ class ScalaELResolver extends ELResolver {
     if (base == null || !base.isInstanceOf[scala.ScalaObject]) null
     else if (base != null && prop == null) null
     else {
-      var methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
+      val javaGetterName = "get"+toBeginningUpperCase(prop.asInstanceOf[String])
+
+      val javaGetMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
+      if (javaGetMethod != null && javaGetMethod.size() > 0) {
+        //java getter method we let our standard el resolver handle the prop
+        null
+      }
+
+      val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
       if (methods != null && methods.size > 0) {
         elContext.setPropertyResolved(true)
         methods.iterator.next.getReturnType
@@ -93,6 +102,15 @@ class ScalaELResolver extends ELResolver {
     if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
       null
     } else {
+
+      val javaGetterName = "get"+toBeginningUpperCase(prop.asInstanceOf[String])
+
+      val javaMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
+      if (javaMethod != null && javaMethod.size() > 0) {
+        //java setter method we let our standard el resolver handle the prop
+        null
+      }
+
       val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
       if (methods != null && methods.size > 0) {
         val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
@@ -108,8 +126,8 @@ class ScalaELResolver extends ELResolver {
     if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
       true
     } else {
-      def methodName: String = prop.asInstanceOf[String]
-      def setterName = methodName + "_$eq"
+      val methodName: String = prop.asInstanceOf[String]
+      val setterName = methodName + "_$eq"
       if (base.getClass.getMethod(setterName) != null) {
         elContext.setPropertyResolved(true)
         false
@@ -123,9 +141,23 @@ class ScalaELResolver extends ELResolver {
     }
   }
 
+  def toBeginningUpperCase(in: String):String = {
+    val first = in.substring(0, 1);
+    val last = in.substring(1);
+    (first.toUpperCase + last)
+  }
+
   def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
-      def methodName: String = prop.asInstanceOf[String]
+      val methodName: String = prop.asInstanceOf[String]
+      val javaSetterName = "set"+toBeginningUpperCase(methodName)
+
+      val javaSetMethod = ReflectUtil.getAllMethods(base.getClass(), javaSetterName, 1)
+      if (javaSetMethod != null && javaSetMethod.size() > 0) {
+        //java setter method we let our standard el resolver handle the prop
+        null
+      }
+
       def setterName = methodName + "_$eq"
       val setMethod = ReflectUtil.getAllMethods(base.getClass(), methodName, 1)
       val setterMethod = ReflectUtil.getAllMethods(base.getClass(), setterName, 1)
