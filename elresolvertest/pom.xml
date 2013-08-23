@@ -20,7 +20,7 @@
         <jetty-maven-plugin.version>9.0.5.v20130815</jetty-maven-plugin.version>
         <openwebbeans.version>1.2.0</openwebbeans.version>
         <geronimo_interceptor.version>1.0</geronimo_interceptor.version>
-        <geronimo_cdi.version>1.1</geronimo_cdi.version>
+        <geronimo_cdi.version>1.2</geronimo_cdi.version>
         <geronimo_atinject.version>1.0</geronimo_atinject.version>
         <geronimo-validation_1.0_spec.version>1.0</geronimo-validation_1.0_spec.version>
     </properties>

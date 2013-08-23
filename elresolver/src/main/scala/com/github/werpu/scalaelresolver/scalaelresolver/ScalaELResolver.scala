@@ -32,11 +32,6 @@ import com.github.werpu.scalaelresolver.util.ReflectUtil
  *          call the getters and setters of scala according to the scala convention of
  *          attr() and attr_$eq(value)
  *
- *          transform the incoming or outgoing lists, maps and arrays
- *          from the scala maps an arrays to their java representations
- *          (if needed, since the el works with introspection alone
- *          it might work without the conversion)
- *
  *          delegate the rest to the other el resolvers in the chain
  */
 
