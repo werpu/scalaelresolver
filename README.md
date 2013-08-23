@@ -18,8 +18,8 @@ Installation howto:
 
 And to your faces-config:
 
-        <application>
-             <el-resolver>
-                 com.github.werpu.scalaelresolver.scalaelresolver.ScalaELResolver
-             </el-resolver>
-        </application>
+     <application>
+         <el-resolver>
+             com.github.werpu.scalaelresolver.scalaelresolver.ScalaELResolver
+         </el-resolver>
+     </application>
