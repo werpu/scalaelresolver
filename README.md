@@ -2,6 +2,9 @@ scalaelresolver
 ===============
 
 Custom Scala EL Resolver for JSF and usage example
+As for now there is no hosting in the maven central repository given its alpha state
+you have to compile yourself for your project.
+
 
 Installation howto:
 
