@@ -166,7 +166,7 @@ class ScalaELResolver extends ELResolver {
     if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
       true
     } else {
-      val methodName: String = prop.asInstanceOf[String]
+      val methodName = prop.asInstanceOf[String]
       val setterName = methodName + SCALA_SET_POSTFIX
       if (ReflectUtil.findFirstMethod(base.getClass, setterName, 1) != null) {
         elContext.setPropertyResolved(true)
