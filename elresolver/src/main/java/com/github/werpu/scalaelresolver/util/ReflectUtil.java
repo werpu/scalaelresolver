@@ -103,6 +103,14 @@ public class ReflectUtil {
      * speed optimized findFirstMethod
      */
     public static Method findFirstMethod(Class clazz, String methodName, int varargLength) {
+        if(varargLength == 0) {
+            try {
+                return clazz.getMethod(methodName);
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+
+        }
         while (clazz != null) {
             for (Method m : clazz.getDeclaredMethods()) {
                 if (m.getParameterTypes().length == varargLength && m.getName().equals(methodName)) {
