@@ -156,13 +156,17 @@ class ScalaELResolver extends ELResolver {
 
 
   def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
-    if (base != null && base.isInstanceOf[scala.ScalaObject]) {
-      val methodName: String = prop.asInstanceOf[String]
-      val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      var javaSetMethod = _findMethod(base.getClass, javaSetterName, value.getClass)
-      if (javaSetMethod != null) {
-        javaSetMethod = _findMethod(base.getClass, javaSetterName, _mapNativeType(value))
+    def findMethod(setterName: String): Method = {
+      var javaSetMethod = _findMethod(base.getClass, setterName, value.getClass)
+      if (javaSetMethod == null) {
+        javaSetMethod = _findMethod(base.getClass, setterName, _mapNativeType(value))
       }
+      javaSetMethod
+    }
+    if (base != null && base.isInstanceOf[scala.ScalaObject]) {
+      val methodName = prop.asInstanceOf[String]
+      val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
+      val javaSetMethod: Method = findMethod(javaSetterName)
 
       if (javaSetMethod != null) {
         //java setter method we let our standard el resolver handle the prop
@@ -170,10 +174,7 @@ class ScalaELResolver extends ELResolver {
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
-      var setterMethod = _findMethod(base.getClass, setterName, value.getClass)
-      if (setterMethod == null) {
-        setterMethod = _findMethod(base.getClass, setterName, _mapNativeType(value))
-      }
+      val setterMethod = findMethod(setterName)
 
       if (setterMethod != null) {
         setterMethod.invoke(base, value)
