@@ -145,25 +145,11 @@ class ScalaELResolver extends ELResolver {
   def handleConversions(res: AnyRef): AnyRef = {
     //We now do also a map and iterable conversion so that
     //those can be accessed from within the el scope
-    /*res match {
+    res match {
        case map: Map[_,_] => JavaConversions.asJavaMap(map)
        case seq: Seq[_] => JavaConversions.asJavaList(seq)
-       case iter: Iterable[_] => JavaConversions.asJavaIterable(iter)
+       case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
        case _ => res
-    }*/
-
-    if (res.isInstanceOf[Map[_, _]]) {
-      val map = res.asInstanceOf[Map[_, _]]
-      JavaConversions.asJavaMap(map)
-    } else if (res.isInstanceOf[Seq[_]]) {
-      val seq = res.asInstanceOf[Seq[_]]
-      JavaConversions.asJavaList(seq)
-    } else if (res.isInstanceOf[Iterable[_]]) {
-      //for jsf 2.2 collections are usable
-      val iter = res.asInstanceOf[Iterable[_]]
-      JavaConversions.asJavaCollection(iter)
-    } else {
-      res
     }
   }
 
