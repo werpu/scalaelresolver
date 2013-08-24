@@ -20,7 +20,7 @@ And to your faces-config:
 
      <application>
          <el-resolver>
-             com.github.werpu.scalaelresolver.scalaelresolver.ScalaELResolver
+             com.github.werpu.scalaelresolver.ScalaELResolver
          </el-resolver>
      </application>
 
