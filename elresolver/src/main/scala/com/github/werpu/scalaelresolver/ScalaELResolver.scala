@@ -167,7 +167,7 @@ class ScalaELResolver extends ELResolver {
 
       if (javaSetMethod != null) {
         //java setter method we let our standard el resolver handle the prop
-        null
+        return null
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
