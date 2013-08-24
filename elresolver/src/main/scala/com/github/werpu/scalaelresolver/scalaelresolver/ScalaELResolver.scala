@@ -32,8 +32,7 @@ import scala.collection.{mutable, JavaConversions}
  *          A custom el resolver which needs to do following things
  *          call the getters and setters of scala according to the scala convention of
  *          attr() and attr_$eq(value)
- *
- *          delegate the rest to the other el resolvers in the chain
+ *          It also converts scala collections to the collections JSF understands
  */
 
 class ScalaELResolver extends ELResolver {
