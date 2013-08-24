@@ -99,16 +99,16 @@ class ScalaELResolver extends ELResolver {
     else {
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaGetMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
-      if (javaGetMethod != null && javaGetMethod.size() > 0) {
+      val javaGetMethod = ReflectUtil.findFirstMethod(base.getClass(), javaGetterName, 0)
+      if (javaGetMethod != null) {
         //java getter method we let our standard el resolver handle the prop
         null
       }
 
-      val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
-      if (methods != null && methods.size > 0) {
+      val method = ReflectUtil.findFirstMethod(base.getClass(), prop.asInstanceOf[String], 0)
+      if (method != null) {
         elContext.setPropertyResolved(true)
-        methods.iterator.next.getReturnType
+        method.getReturnType
       } else {
         //lets delegate the analysis into the subsequent sections of the chain
         null
@@ -123,19 +123,19 @@ class ScalaELResolver extends ELResolver {
 
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
-      if (javaMethod != null && javaMethod.size() > 0) {
-        val res = javaMethod.iterator.next.invoke(base);
+      val javaMethod = ReflectUtil.findFirstMethod(base.getClass(), javaGetterName, 0)
+      if (javaMethod != null) {
+        val res = javaMethod.invoke(base);
         //val res = ReflectUtil.executeMethod(base, javaGetterName)
         elContext.setPropertyResolved(true)
 
         return handleConversions(res)
       }
 
-      val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
-      if (methods != null && methods.size > 0) {
+      val method = ReflectUtil.findFirstMethod(base.getClass(), prop.asInstanceOf[String], 0)
+      if (method != null) {
         // val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
-        val res = methods.iterator.next.invoke(base);
+        val res = method.invoke(base);
         elContext.setPropertyResolved(true)
 
         handleConversions(res)
@@ -191,20 +191,20 @@ class ScalaELResolver extends ELResolver {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
       val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      val javaSetMethod = ReflectUtil.getAllMethods(base.getClass(), javaSetterName, 1)
+      val javaSetMethod = ReflectUtil.findFirstMethod(base.getClass(), javaSetterName, 1)
 
-      if (javaSetMethod != null && javaSetMethod.size() > 0) {
+      if (javaSetMethod != null) {
         //java setter method we let our standard el resolver handle the prop
         null
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
-      val setterMethod = ReflectUtil.getAllMethods(base.getClass(), setterName, 1)
+      val setterMethod = ReflectUtil.findFirstMethod(base.getClass(), setterName, 1)
 
-      if (setterMethod != null && setterMethod.size > 0) {
-        val transformedValue = getValueType(setterMethod.iterator.next, value)
+      if (setterMethod != null ) {
+        val transformedValue = getValueType(setterMethod, value)
         // ReflectUtil.executeMethod(base, setterName, transformedValue)
-        setterMethod.iterator.next.invoke(base, transformedValue)
+        setterMethod.invoke(base, transformedValue)
         elContext.setPropertyResolved(true)
       }
        null
