@@ -146,8 +146,8 @@ class ScalaELResolver extends ELResolver {
     //We now do also a map and iterable conversion so that
     //those can be accessed from within the el scope
     res match {
-       case map: Map[_,_] => JavaConversions.asJavaMap(map)
-       case seq: Seq[_] => JavaConversions.asJavaList(seq)
+       case map: Map[_,_] => JavaConversions.mapAsJavaMap(map)
+       case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
        case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
        case _ => res
     }
