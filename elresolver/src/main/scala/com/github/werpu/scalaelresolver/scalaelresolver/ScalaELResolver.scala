@@ -39,7 +39,7 @@ object CONST {
   val GET_PREFIX = "get"
   val SET_PREFIX = "set"
   val EQ_REGEXP = "\\_\\$eq"
-  val SCALA_SET_PREFIX = "_$eq"
+  val SCALA_SET_POSTFIX = "_$eq"
 }
 
 class ScalaELResolver extends ELResolver {
@@ -71,7 +71,7 @@ class ScalaELResolver extends ELResolver {
         ret += makeDescriptor(methodName, methodName, base.getClass)
       }
 
-      asJavaSet[FeatureDescriptor](ret).iterator
+      mutableSetAsJavaSet[FeatureDescriptor](ret).iterator
     }
 
   }
@@ -167,7 +167,7 @@ class ScalaELResolver extends ELResolver {
       true
     } else {
       val methodName: String = prop.asInstanceOf[String]
-      val setterName = methodName + SCALA_SET_PREFIX
+      val setterName = methodName + SCALA_SET_POSTFIX
       if (base.getClass.getMethod(setterName) != null) {
         elContext.setPropertyResolved(true)
         false
@@ -198,7 +198,7 @@ class ScalaELResolver extends ELResolver {
         null
       }
 
-      val setterName = methodName + SCALA_SET_PREFIX
+      val setterName = methodName + SCALA_SET_POSTFIX
       val setterMethod = ReflectUtil.getAllMethods(base.getClass(), setterName, 1)
 
       if (setterMethod != null && setterMethod.size > 0) {
