@@ -52,11 +52,7 @@
     </modules>
 
     <dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala-library.version}</version>
-        </dependency>
+
     </dependencies>
 
     <build>
