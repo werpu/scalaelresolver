@@ -38,13 +38,13 @@ import scala.collection.JavaConversions
 object CONST {
   val GET_PREFIX = "get"
   val SET_PREFIX = "set"
-  val EQ_REGEXP = "\\_\\$eq"
+  val EQ_REGEXP = "\\_\\$eƒq"
   val SCALA_SET_POSTFIX = "_$eq"
 }
 
 class ScalaELResolver extends ELResolver {
 
-  import CONST._;
+  import CONST._
 
   def getCommonPropertyType(elContext: ELContext, o: AnyRef): Class[_] = {
     o.getClass
@@ -60,7 +60,7 @@ class ScalaELResolver extends ELResolver {
       val ret = new HashSet[FeatureDescriptor]
       //We have to iterate over all properties of the base and return it
       //as feature descriptor instance
-      val methods: Array[Method] = base.getClass().getMethods
+      val methods: Array[Method] = base.getClass.getMethods
       val alreadyProcessed = new HashSet[String]
       for (method <- methods if (!alreadyProcessed.contains(method.getName.replaceAll(EQ_REGEXP, "")))) {
         //note every attribute of a scala object
@@ -182,11 +182,49 @@ class ScalaELResolver extends ELResolver {
     (first.toUpperCase + last)
   }
 
+  /**
+   * we have to map the primitive types for our reflection lookup
+   *
+   * @param value
+   * @return
+   */
+  def mapType(value: AnyRef) = {
+    if(value.isInstanceOf[Int] || value.isInstanceOf[java.lang.Integer]) {
+      Integer.TYPE
+    }
+    else if(value.isInstanceOf[Double] || value.isInstanceOf[java.lang.Double]) {
+      java.lang.Double.TYPE
+    }
+    else if(value.isInstanceOf[Long] || value.isInstanceOf[java.lang.Long]) {
+      java.lang.Long.TYPE
+    }
+    else if(value.isInstanceOf[Float] || value.isInstanceOf[java.lang.Float]) {
+      java.lang.Float.TYPE
+    }
+    else if(value.isInstanceOf[Byte] || value.isInstanceOf[java.lang.Byte]) {
+      java.lang.Byte.TYPE
+    }
+    else if(value.isInstanceOf[Short] || value.isInstanceOf[java.lang.Short]) {
+      java.lang.Short.TYPE
+    }
+    else if(value.isInstanceOf[Boolean] || value.isInstanceOf[java.lang.Boolean]) {
+      java.lang.Boolean.TYPE
+    }
+    else if(value.isInstanceOf[Char] || value.isInstanceOf[java.lang.Character]) {
+      java.lang.Character.TYPE
+    }  else {
+      value.getClass
+    }
+  }
+
   def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
       val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      val javaSetMethod = ReflectUtil.findFirstMethod(base.getClass(), javaSetterName, 1)
+      var javaSetMethod = ReflectUtil.findFirstMethod(base.getClass(), javaSetterName, value.getClass)
+      if (javaSetMethod != null) {
+        javaSetMethod = ReflectUtil.findFirstMethod(base.getClass(), javaSetterName, mapType(value))
+      }
 
       if (javaSetMethod != null) {
         //java setter method we let our standard el resolver handle the prop
@@ -194,7 +232,10 @@ class ScalaELResolver extends ELResolver {
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
-      val setterMethod = ReflectUtil.findFirstMethod(base.getClass(), setterName, 1)
+      var setterMethod = ReflectUtil.findFirstMethod(base.getClass(), setterName, value.getClass)
+      if (setterMethod == null) {
+        setterMethod = ReflectUtil.findFirstMethod(base.getClass(), setterName, mapType(value))
+      }
 
       if (setterMethod != null) {
         setterMethod.invoke(base, value)
