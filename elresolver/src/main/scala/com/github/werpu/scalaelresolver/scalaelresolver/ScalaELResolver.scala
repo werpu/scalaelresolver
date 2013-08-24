@@ -190,7 +190,7 @@ class ScalaELResolver extends ELResolver {
   def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
-      val javaSetterName = "set" + toBeginningUpperCase(methodName)
+      val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
 
       val javaSetMethod = ReflectUtil.getAllMethods(base.getClass(), javaSetterName, 1)
       if (javaSetMethod != null && javaSetMethod.size() > 0) {
@@ -198,7 +198,7 @@ class ScalaELResolver extends ELResolver {
         null
       }
 
-      val setterName = methodName + "_$eq"
+      val setterName = methodName + SCALA_SET_PREFIX
       val setMethod = ReflectUtil.getAllMethods(base.getClass(), methodName, 1)
       val setterMethod = ReflectUtil.getAllMethods(base.getClass(), setterName, 1)
 
