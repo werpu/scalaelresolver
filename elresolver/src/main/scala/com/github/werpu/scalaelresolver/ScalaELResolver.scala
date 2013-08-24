@@ -256,22 +256,25 @@ class ScalaELResolver extends ELResolver {
     /**
      * speed optimized findFirstMethod
      */
+    /**
+     * speed optimized findFirstMethod
+     */
     def _findMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
-        var myClz = clazz
         try {
             if (varargLength == 0) {
-                return myClz.getMethod(methodName)
+                return clazz.getMethod(methodName)
             }
         } catch {
             case ex: NoSuchElementException => return null
         }
 
-        while (myClz != null) {
-            for (m <- myClz.getDeclaredMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
-                return m
-            }
-            myClz = myClz.getSuperclass
+        for (m <- clazz.getDeclaredMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
+            return m
         }
+        for (m <- clazz.getMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
+            return m
+        }
+
         null
     }
 }
