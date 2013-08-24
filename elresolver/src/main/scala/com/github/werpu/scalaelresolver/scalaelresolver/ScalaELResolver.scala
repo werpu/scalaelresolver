@@ -123,7 +123,7 @@ class ScalaELResolver extends ELResolver {
 
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaMethod = ReflectUtil.findFirstMethod(base.getClass(), javaGetterName, 0)
+      val javaMethod = ReflectUtil.findFirstMethod(base.getClass(), javaGetterName)
       if (javaMethod != null) {
         val res = javaMethod.invoke(base);
         //val res = ReflectUtil.executeMethod(base, javaGetterName)
@@ -132,7 +132,7 @@ class ScalaELResolver extends ELResolver {
         return handleConversions(res)
       }
 
-      val method = ReflectUtil.findFirstMethod(base.getClass(), prop.asInstanceOf[String], 0)
+      val method = ReflectUtil.findFirstMethod(base.getClass(), prop.asInstanceOf[String])
       if (method != null) {
         // val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
         val res = method.invoke(base);
@@ -183,8 +183,7 @@ class ScalaELResolver extends ELResolver {
   }
 
   /**
-   * we have to map the primitive types for our reflection lookup
-   *
+   * We have to map our complex types into primitives for a second fast lookup
    * @param value
    * @return
    */
