@@ -220,9 +220,9 @@ class ScalaELResolver extends ELResolver {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
       val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      var javaSetMethod = _findFirstMethod(base.getClass(), javaSetterName, value.getClass)
+      var javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, value.getClass)
       if (javaSetMethod != null) {
-        javaSetMethod = _findFirstMethod(base.getClass(), javaSetterName, mapType(value))
+        javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, mapType(value))
       }
 
       if (javaSetMethod != null) {
@@ -231,9 +231,9 @@ class ScalaELResolver extends ELResolver {
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
-      var setterMethod = _findFirstMethod(base.getClass(), setterName, value.getClass)
+      var setterMethod = _findFirstMethod(base.getClass, setterName, value.getClass)
       if (setterMethod == null) {
-        setterMethod = _findFirstMethod(base.getClass(), setterName, mapType(value))
+        setterMethod = _findFirstMethod(base.getClass, setterName, mapType(value))
       }
 
       if (setterMethod != null) {
@@ -267,17 +267,17 @@ class ScalaELResolver extends ELResolver {
    */
   def _findFirstMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
     var myClz = clazz;
-    if (varargLength == 0) {
-      try {
-        clazz.getMethod(methodName)
-      } catch {
-        case ex: NoSuchElementException => null
+    try {
+      if (varargLength == 0) {
+        return clazz.getMethod(methodName)
       }
+    } catch {
+      case ex: NoSuchElementException => null
     }
 
     while (myClz != null) {
       for (m <- myClz.getDeclaredMethods if (m.getParameterTypes.length == varargLength && m.getName.equals(methodName))) {
-        return m;
+        return m
       }
       myClz = myClz.getSuperclass
     }
