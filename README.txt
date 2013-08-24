@@ -23,3 +23,8 @@ And to your faces-config:
              com.github.werpu.scalaelresolver.scalaelresolver.ScalaELResolver
          </el-resolver>
      </application>
+
+Example Application:
+
+There is a testcase/example included, it can be started from the elresolvertest dir
+by starting mvn tomcat7:run-war and then pointing your browser to http://localhost:9080
