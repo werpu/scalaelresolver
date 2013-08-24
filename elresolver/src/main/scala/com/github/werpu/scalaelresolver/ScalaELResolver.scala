@@ -264,7 +264,7 @@ class ScalaELResolver extends ELResolver {
         return clazz.getMethod(methodName)
       }
     } catch {
-      case ex: NoSuchElementException => null
+      case ex: NoSuchElementException => return null
     }
 
     while (myClz != null) {
