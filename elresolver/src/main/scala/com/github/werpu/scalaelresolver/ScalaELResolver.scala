@@ -8,8 +8,7 @@ import java.beans.FeatureDescriptor
 import java.lang.reflect.Method
 
 import collection.JavaConversions._
-import collection.mutable.HashSet
-import scala.collection.JavaConversions
+import scala.collection.{mutable, JavaConversions}
 
 /**
  *
@@ -45,12 +44,12 @@ class ScalaELResolver extends ELResolver {
       //resolver
       null
     } else {
-      val ret = new HashSet[FeatureDescriptor]
+      val ret = new mutable.HashSet[FeatureDescriptor]
       //We have to iterate over all properties of the base and return it
       //as feature descriptor instance
       val methods: Array[Method] = base.getClass.getMethods
-      val alreadyProcessed = new HashSet[String]
-      for (method <- methods if (!alreadyProcessed.contains(method.getName.replaceAll(EQ_REGEXP, "")))) {
+      val alreadyProcessed = new mutable.HashSet[String]
+      for (method <- methods if !alreadyProcessed.contains(method.getName.replaceAll(EQ_REGEXP, ""))) {
         //note every attribute of a scala object
         //is set as protected or private
         //with two encapsulating functions
@@ -87,13 +86,13 @@ class ScalaELResolver extends ELResolver {
     else {
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaGetMethod = _findFirstMethod(base.getClass(), javaGetterName)
+      val javaGetMethod = _findFirstMethod(base.getClass, javaGetterName)
       if (javaGetMethod != null) {
         //java getter method we let our standard el resolver handle the prop
         null
       }
 
-      val method = _findFirstMethod(base.getClass(), prop.asInstanceOf[String])
+      val method = _findFirstMethod(base.getClass, prop.asInstanceOf[String])
       if (method != null) {
         elContext.setPropertyResolved(true)
         method.getReturnType
@@ -111,19 +110,19 @@ class ScalaELResolver extends ELResolver {
 
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaMethod = _findFirstMethod(base.getClass(), javaGetterName)
+      val javaMethod = _findFirstMethod(base.getClass, javaGetterName)
       if (javaMethod != null) {
-        val res = javaMethod.invoke(base);
+        val res = javaMethod.invoke(base)
         //val res = executeMethod(base, javaGetterName)
         elContext.setPropertyResolved(true)
 
         return _handleCollectionConversions(res)
       }
 
-      val method = _findFirstMethod(base.getClass(), prop.asInstanceOf[String])
+      val method = _findFirstMethod(base.getClass, prop.asInstanceOf[String])
       if (method != null) {
         // val res = executeMethod(base, prop.asInstanceOf[String])
-        val res = method.invoke(base);
+        val res = method.invoke(base)
         elContext.setPropertyResolved(true)
 
         _handleCollectionConversions(res)
@@ -149,9 +148,9 @@ class ScalaELResolver extends ELResolver {
   }
 
   def toBeginningUpperCase(in: String): String = {
-    val first = in.substring(0, 1);
-    val last = in.substring(1);
-    (first.toUpperCase + last)
+    val first = in.substring(0, 1)
+    val last = in.substring(1)
+    first.toUpperCase + last
   }
 
 
@@ -185,8 +184,8 @@ class ScalaELResolver extends ELResolver {
 
   /**
    * We have to map our complex types into primitives for a second fast lookup
-   * @param value
-   * @return
+   * @param value a value to be investigated
+   * @return the class or the native type
    */
   def _mapNativeType(value: AnyRef) = {
     if (value.isInstanceOf[Int] || value.isInstanceOf[java.lang.Integer]) {
@@ -220,17 +219,17 @@ class ScalaELResolver extends ELResolver {
   /**
    * handles the conversions for the return types
    *
-   * @param res
-   * @return
+   * @param col the collection to be converted
+   * @return  the converted collection
    */
-  def _handleCollectionConversions(res: AnyRef): AnyRef = {
+  def _handleCollectionConversions(col: AnyRef): AnyRef = {
     //We now do also a map and iterable conversion so that
     //those can be accessed from within the el scope
-    res match {
+    col match {
       case map: Map[_, _] => JavaConversions.mapAsJavaMap(map)
       case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
       case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
-      case _ => res
+      case _ => col
     }
   }
 
@@ -267,7 +266,7 @@ class ScalaELResolver extends ELResolver {
     }
 
     while (myClz != null) {
-      for (m <- myClz.getDeclaredMethods if (m.getParameterTypes.length == varargLength && m.getName.equals(methodName))) {
+      for (m <- myClz.getDeclaredMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
         return m
       }
       myClz = myClz.getSuperclass
