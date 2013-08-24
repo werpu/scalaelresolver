@@ -169,11 +169,10 @@ class ScalaELResolver extends ELResolver {
       val setterName = methodName + SCALA_SET_POSTFIX
       if (_findFirstMethod(base.getClass, setterName, 1) != null) {
         elContext.setPropertyResolved(true)
-        false
+        return false
       }
       true
     }
-    true
   }
 
   def toBeginningUpperCase(in: String): String = {
