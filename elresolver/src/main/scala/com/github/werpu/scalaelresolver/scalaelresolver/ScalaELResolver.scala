@@ -128,7 +128,7 @@ class ScalaELResolver extends ELResolver {
         //val res = executeMethod(base, javaGetterName)
         elContext.setPropertyResolved(true)
 
-        return handleConversions(res)
+        return _handleCollectionConversions(res)
       }
 
       val method = _findFirstMethod(base.getClass(), prop.asInstanceOf[String])
@@ -137,29 +137,13 @@ class ScalaELResolver extends ELResolver {
         val res = method.invoke(base);
         elContext.setPropertyResolved(true)
 
-        handleConversions(res)
+        _handleCollectionConversions(res)
       } else {
         null
       }
     }
   }
 
-  /**
-   * handles the conversions for the return types
-   *
-   * @param res
-   * @return
-   */
-  def handleConversions(res: AnyRef): AnyRef = {
-    //We now do also a map and iterable conversion so that
-    //those can be accessed from within the el scope
-    res match {
-      case map: Map[_, _] => JavaConversions.mapAsJavaMap(map)
-      case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
-      case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
-      case _ => res
-    }
-  }
 
   def isReadOnly(elContext: ELContext, base: AnyRef, prop: AnyRef): Boolean = {
     if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
@@ -181,12 +165,42 @@ class ScalaELResolver extends ELResolver {
     (first.toUpperCase + last)
   }
 
+
+
+  def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
+    if (base != null && base.isInstanceOf[scala.ScalaObject]) {
+      val methodName: String = prop.asInstanceOf[String]
+      val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
+      var javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, value.getClass)
+      if (javaSetMethod != null) {
+        javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, _mapNativeType(value))
+      }
+
+      if (javaSetMethod != null) {
+        //java setter method we let our standard el resolver handle the prop
+        null
+      }
+
+      val setterName = methodName + SCALA_SET_POSTFIX
+      var setterMethod = _findFirstMethod(base.getClass, setterName, value.getClass)
+      if (setterMethod == null) {
+        setterMethod = _findFirstMethod(base.getClass, setterName, _mapNativeType(value))
+      }
+
+      if (setterMethod != null) {
+        setterMethod.invoke(base, value)
+        elContext.setPropertyResolved(true)
+      }
+      null
+    }
+  }
+
   /**
    * We have to map our complex types into primitives for a second fast lookup
    * @param value
    * @return
    */
-  def mapType(value: AnyRef) = {
+  def _mapNativeType(value: AnyRef) = {
     if (value.isInstanceOf[Int] || value.isInstanceOf[java.lang.Integer]) {
       Integer.TYPE
     }
@@ -215,33 +229,23 @@ class ScalaELResolver extends ELResolver {
     }
   }
 
-  def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
-    if (base != null && base.isInstanceOf[scala.ScalaObject]) {
-      val methodName: String = prop.asInstanceOf[String]
-      val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      var javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, value.getClass)
-      if (javaSetMethod != null) {
-        javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, mapType(value))
-      }
-
-      if (javaSetMethod != null) {
-        //java setter method we let our standard el resolver handle the prop
-        null
-      }
-
-      val setterName = methodName + SCALA_SET_POSTFIX
-      var setterMethod = _findFirstMethod(base.getClass, setterName, value.getClass)
-      if (setterMethod == null) {
-        setterMethod = _findFirstMethod(base.getClass, setterName, mapType(value))
-      }
-
-      if (setterMethod != null) {
-        setterMethod.invoke(base, value)
-        elContext.setPropertyResolved(true)
-      }
-      null
+  /**
+   * handles the conversions for the return types
+   *
+   * @param res
+   * @return
+   */
+  def _handleCollectionConversions(res: AnyRef): AnyRef = {
+    //We now do also a map and iterable conversion so that
+    //those can be accessed from within the el scope
+    res match {
+      case map: Map[_, _] => JavaConversions.mapAsJavaMap(map)
+      case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
+      case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
+      case _ => res
     }
   }
+
 
   /**
    * speed optimized findFirstMethod
