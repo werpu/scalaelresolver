@@ -155,10 +155,10 @@ class ScalaELResolver extends ELResolver {
     //We now do also a map and iterable conversion so that
     //those can be accessed from within the el scope
     res match {
-       case map: Map[_,_] => JavaConversions.mapAsJavaMap(map)
-       case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
-       case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
-       case _ => res
+      case map: Map[_, _] => JavaConversions.mapAsJavaMap(map)
+      case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
+      case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
+      case _ => res
     }
   }
 
@@ -201,43 +201,11 @@ class ScalaELResolver extends ELResolver {
       val setterName = methodName + SCALA_SET_POSTFIX
       val setterMethod = ReflectUtil.findFirstMethod(base.getClass(), setterName, 1)
 
-      if (setterMethod != null ) {
-        val transformedValue = getValueType(setterMethod, value)
-        // ReflectUtil.executeMethod(base, setterName, transformedValue)
-        setterMethod.invoke(base, transformedValue)
+      if (setterMethod != null) {
+        setterMethod.invoke(base, value)
         elContext.setPropertyResolved(true)
       }
-       null
+      null
     }
   }
-
-  def getValueType(method: Method, theVal: AnyRef): AnyRef = {
-    if (!theVal.isInstanceOf[String]) {
-      theVal
-    } else {
-      val strVal = theVal.asInstanceOf[String]
-      val paramTypes: Array[Class[_]] = method.getParameterTypes()
-      val initParam = paramTypes.apply(0)
-      if (initParam == classOf[String]) {
-        theVal
-      } else if (initParam == classOf[Int]) {
-        strVal.toInt.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Long]) {
-        strVal.toLong.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Float]) {
-        strVal.toFloat.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Double]) {
-        strVal.toDouble.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Boolean]) {
-        strVal.toBoolean.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Byte]) {
-        strVal.toByte.asInstanceOf[AnyRef]
-      } else if (initParam == classOf[Char]) {
-        strVal.toCharArray.apply(0).asInstanceOf[AnyRef]
-      } else {
-        theVal
-      }
-    }
-  }
-
 }
