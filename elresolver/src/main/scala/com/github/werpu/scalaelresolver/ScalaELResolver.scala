@@ -167,7 +167,7 @@ class ScalaELResolver extends ELResolver {
 
       if (javaSetMethod != null) {
         //java setter method we let our standard el resolver handle the prop
-        return null
+        return
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
@@ -180,7 +180,6 @@ class ScalaELResolver extends ELResolver {
         setterMethod.invoke(base, value)
         elContext.setPropertyResolved(true)
       }
-      null
     }
   }
 
@@ -258,10 +257,10 @@ class ScalaELResolver extends ELResolver {
    * speed optimized findFirstMethod
    */
   def _findFirstMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
-    var myClz = clazz;
+    var myClz = clazz
     try {
       if (varargLength == 0) {
-        return clazz.getMethod(methodName)
+        return myClz.getMethod(methodName)
       }
     } catch {
       case ex: NoSuchElementException => return null
