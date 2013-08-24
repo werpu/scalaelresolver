@@ -22,7 +22,7 @@ import java.lang.reflect.Method
 import collection.JavaConversions._
 import collection.mutable.HashSet
 import com.github.werpu.scalaelresolver.util.ReflectUtil
-import scala.collection.{mutable, JavaConversions}
+import scala.collection.JavaConversions
 
 /**
  *
@@ -168,16 +168,11 @@ class ScalaELResolver extends ELResolver {
     } else {
       val methodName: String = prop.asInstanceOf[String]
       val setterName = methodName + SCALA_SET_POSTFIX
-      if (base.getClass.getMethod(setterName) != null) {
+      if (ReflectUtil.findFirstMethod(base.getClass, setterName, 1) != null) {
         elContext.setPropertyResolved(true)
         false
-      } else {
-        val m: Method = base.getClass.getMethod(methodName)
-        val paramTypes = m.getParameterTypes
-        val ret = !(paramTypes != null && paramTypes.length > 0)
-        elContext.setPropertyResolved(true)
-        ret
       }
+      true
     }
   }
 
