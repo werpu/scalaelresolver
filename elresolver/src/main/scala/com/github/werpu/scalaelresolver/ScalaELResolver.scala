@@ -86,13 +86,13 @@ class ScalaELResolver extends ELResolver {
     else {
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaGetMethod = _findFirstMethod(base.getClass, javaGetterName)
+      val javaGetMethod = _findMethod(base.getClass, javaGetterName)
       if (javaGetMethod != null) {
         //java getter method we let our standard el resolver handle the prop
         null
       }
 
-      val method = _findFirstMethod(base.getClass, prop.asInstanceOf[String])
+      val method = _findMethod(base.getClass, prop.asInstanceOf[String])
       if (method != null) {
         elContext.setPropertyResolved(true)
         method.getReturnType
@@ -110,7 +110,7 @@ class ScalaELResolver extends ELResolver {
 
       val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
-      val javaMethod = _findFirstMethod(base.getClass, javaGetterName)
+      val javaMethod = _findMethod(base.getClass, javaGetterName)
       if (javaMethod != null) {
         val res = javaMethod.invoke(base)
         //val res = executeMethod(base, javaGetterName)
@@ -119,7 +119,7 @@ class ScalaELResolver extends ELResolver {
         return _handleCollectionConversions(res)
       }
 
-      val method = _findFirstMethod(base.getClass, prop.asInstanceOf[String])
+      val method = _findMethod(base.getClass, prop.asInstanceOf[String])
       if (method != null) {
         // val res = executeMethod(base, prop.asInstanceOf[String])
         val res = method.invoke(base)
@@ -139,7 +139,7 @@ class ScalaELResolver extends ELResolver {
     } else {
       val methodName = prop.asInstanceOf[String]
       val setterName = methodName + SCALA_SET_POSTFIX
-      if (_findFirstMethod(base.getClass, setterName, 1) != null) {
+      if (_findMethod(base.getClass, setterName, 1) != null) {
         elContext.setPropertyResolved(true)
         return false
       }
@@ -159,9 +159,9 @@ class ScalaELResolver extends ELResolver {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
       val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
-      var javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, value.getClass)
+      var javaSetMethod = _findMethod(base.getClass, javaSetterName, value.getClass)
       if (javaSetMethod != null) {
-        javaSetMethod = _findFirstMethod(base.getClass, javaSetterName, _mapNativeType(value))
+        javaSetMethod = _findMethod(base.getClass, javaSetterName, _mapNativeType(value))
       }
 
       if (javaSetMethod != null) {
@@ -170,9 +170,9 @@ class ScalaELResolver extends ELResolver {
       }
 
       val setterName = methodName + SCALA_SET_POSTFIX
-      var setterMethod = _findFirstMethod(base.getClass, setterName, value.getClass)
+      var setterMethod = _findMethod(base.getClass, setterName, value.getClass)
       if (setterMethod == null) {
-        setterMethod = _findFirstMethod(base.getClass, setterName, _mapNativeType(value))
+        setterMethod = _findMethod(base.getClass, setterName, _mapNativeType(value))
       }
 
       if (setterMethod != null) {
@@ -225,10 +225,11 @@ class ScalaELResolver extends ELResolver {
   def _handleCollectionConversions(col: AnyRef): AnyRef = {
     //We now do also a map and iterable conversion so that
     //those can be accessed from within the el scope
+    import JavaConversions._
     col match {
-      case map: Map[_, _] => JavaConversions.mapAsJavaMap(map)
-      case seq: Seq[_] => JavaConversions.seqAsJavaList(seq)
-      case iter: Iterable[_] => JavaConversions.asJavaCollection(iter)
+      case map: Map[_, _] => mapAsJavaMap(map)
+      case seq: Seq[_] => seqAsJavaList(seq)
+      case iter: Iterable[_] => asJavaCollection(iter)
       case _ => col
     }
   }
@@ -237,7 +238,7 @@ class ScalaELResolver extends ELResolver {
   /**
    * speed optimized findFirstMethod
    */
-  def _findFirstMethod(clazz: Class[_], methodName: String, varargs: Class[_]*): Method = {
+  def _findMethod(clazz: Class[_], methodName: String, varargs: Class[_]*): Method = {
     try {
       clazz.getDeclaredMethod(methodName, varargs: _*)
     } catch {
@@ -255,7 +256,7 @@ class ScalaELResolver extends ELResolver {
   /**
    * speed optimized findFirstMethod
    */
-  def _findFirstMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
+  def _findMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
     var myClz = clazz
     try {
       if (varargLength == 0) {
