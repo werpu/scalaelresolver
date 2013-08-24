@@ -40,12 +40,20 @@
         <ol>
             <li>#{bean1.prop1}</li>
             <li>#{bean1.bean2.bean2test1}</li>
+            <li>#{bean1.prop4.key1}</li>
             <li>#{bean3.test1}</li>
             <li>#{bean3.bean4.test4}</li>
             <li>#{bean5.hello1}</li>
             <li>#{bean5.hello2}</li>
             <li>#{bean5.hello3}</li>
         </ol>
+
+        <ul>
+            <ui:repeat value="#{bean1.prop5}" var="item">
+                <li>#{item}</li>
+            </ui:repeat>
+        </ul>
+
 
         <h:form id="myForm" prependId="false">
             <h:inputText value="#{bean1.prop2}"/>

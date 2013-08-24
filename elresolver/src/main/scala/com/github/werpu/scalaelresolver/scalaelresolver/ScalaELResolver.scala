@@ -22,6 +22,7 @@ import java.lang.reflect.Method
 import collection.JavaConversions._
 import collection.mutable.HashSet
 import com.github.werpu.scalaelresolver.util.ReflectUtil
+import scala.collection.{mutable, JavaConversions}
 
 /**
  *
@@ -59,7 +60,6 @@ class ScalaELResolver extends ELResolver {
         //with two encapsulating functions
         var methodName = method.getName.replaceAll("\\_\\$eq", "")
         alreadyProcessed += methodName
-        //TODO we probably have to work the return values in
         ret += makeDescriptor(methodName, methodName, base.getClass)
       }
 
@@ -89,7 +89,7 @@ class ScalaELResolver extends ELResolver {
     if (base == null || !base.isInstanceOf[scala.ScalaObject]) null
     else if (base != null && prop == null) null
     else {
-      val javaGetterName = "get"+toBeginningUpperCase(prop.asInstanceOf[String])
+      val javaGetterName = "get" + toBeginningUpperCase(prop.asInstanceOf[String])
 
       val javaGetMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
       if (javaGetMethod != null && javaGetMethod.size() > 0) {
@@ -113,22 +113,42 @@ class ScalaELResolver extends ELResolver {
       null
     } else {
 
-      val javaGetterName = "get"+toBeginningUpperCase(prop.asInstanceOf[String])
+      val javaGetterName = "get" + toBeginningUpperCase(prop.asInstanceOf[String])
 
       val javaMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
       if (javaMethod != null && javaMethod.size() > 0) {
-        //java setter method we let our standard el resolver handle the prop
-        null
+        val res = ReflectUtil.executeMethod(base, javaGetterName)
+        elContext.setPropertyResolved(true)
+
+        return handleConversions(res)
       }
 
       val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
       if (methods != null && methods.size > 0) {
         val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
         elContext.setPropertyResolved(true)
-        res
+
+        handleConversions(res)
       } else {
         null
       }
+    }
+  }
+
+  /**
+   * handles the conversions for the return types
+   *
+   * @param res
+   * @return
+   */
+  def handleConversions(res: AnyRef): AnyRef = {
+    //We now do also a map and iterable conversion so that
+    //those can be accessed from within the el scope
+    res match {
+       case map: Map[_,_] => JavaConversions.asJavaMap(map)
+       case seq: Seq[_] => JavaConversions.asJavaList(seq)
+       case iter: Iterable[_] => JavaConversions.asJavaIterable(iter)
+       case _ => res
     }
   }
 
@@ -151,7 +171,7 @@ class ScalaELResolver extends ELResolver {
     }
   }
 
-  def toBeginningUpperCase(in: String):String = {
+  def toBeginningUpperCase(in: String): String = {
     val first = in.substring(0, 1);
     val last = in.substring(1);
     (first.toUpperCase + last)
@@ -160,7 +180,7 @@ class ScalaELResolver extends ELResolver {
   def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
     if (base != null && base.isInstanceOf[scala.ScalaObject]) {
       val methodName: String = prop.asInstanceOf[String]
-      val javaSetterName = "set"+toBeginningUpperCase(methodName)
+      val javaSetterName = "set" + toBeginningUpperCase(methodName)
 
       val javaSetMethod = ReflectUtil.getAllMethods(base.getClass(), javaSetterName, 1)
       if (javaSetMethod != null && javaSetMethod.size() > 0) {

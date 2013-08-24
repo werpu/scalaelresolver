@@ -34,6 +34,9 @@ class Bean1 {
   @ManagedProperty(value =  "#{bean2}")
   var bean2: Bean2 = null
 
+  var prop4 = Map("key1"->("value1"), "key2"->"value2")
+  var prop5 = List("val1","val2","val3")
+
   def prop2 = {
     _prop2
   }
@@ -41,6 +44,8 @@ class Bean1 {
   def prop2_$eq(in: String) {
     _prop2 = in
   }
+
+
 
   def doSubmitMe {}
 }
