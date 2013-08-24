@@ -116,7 +116,8 @@ class ScalaELResolver extends ELResolver {
 
       val javaMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
       if (javaMethod != null && javaMethod.size() > 0) {
-        val res = ReflectUtil.executeMethod(base, javaGetterName)
+        val res = javaMethod.iterator.next.invoke(base);
+        //val res = ReflectUtil.executeMethod(base, javaGetterName)
         elContext.setPropertyResolved(true)
 
         return handleConversions(res)
@@ -124,7 +125,8 @@ class ScalaELResolver extends ELResolver {
 
       val methods = ReflectUtil.getAllMethods(base.getClass(), prop.asInstanceOf[String], 0)
       if (methods != null && methods.size > 0) {
-        val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
+        // val res = ReflectUtil.executeMethod(base, prop.asInstanceOf[String])
+        val res = methods.iterator.next.invoke(base);
         elContext.setPropertyResolved(true)
 
         handleConversions(res)
@@ -207,11 +209,13 @@ class ScalaELResolver extends ELResolver {
 
       if (setMethod != null && setMethod.size > 0) {
         val transformedValue = getValueType(setMethod.iterator.next, value)
-        ReflectUtil.executeMethod(base, methodName, transformedValue)
+        //ReflectUtil.executeMethod(base, methodName, transformedValue)
+        setMethod.iterator.next.invoke(base, transformedValue);
         elContext.setPropertyResolved(true)
       } else if (setterMethod != null && setterMethod.size > 0) {
         val transformedValue = getValueType(setterMethod.iterator.next, value)
-        ReflectUtil.executeMethod(base, setterName, transformedValue)
+        // ReflectUtil.executeMethod(base, setterName, transformedValue)
+        setterMethod.iterator.next.invoke(base, transformedValue)
         elContext.setPropertyResolved(true)
       }
       null
