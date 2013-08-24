@@ -35,7 +35,16 @@ import scala.collection.{mutable, JavaConversions}
  *          It also converts scala collections to the collections JSF understands
  */
 
+object CONST {
+  val GET_PREFIX = "get"
+  val SET_PREFIX = "set"
+  val EQ_REGEXP = "\\_\\$eq"
+  val SCALA_SET_PREFIX = "_$eq"
+}
+
 class ScalaELResolver extends ELResolver {
+
+  import CONST._;
 
   def getCommonPropertyType(elContext: ELContext, o: AnyRef): Class[_] = {
     o.getClass
@@ -53,11 +62,11 @@ class ScalaELResolver extends ELResolver {
       //as feature descriptor instance
       val methods: Array[Method] = base.getClass().getMethods
       val alreadyProcessed = new HashSet[String]
-      for (method <- methods if (!alreadyProcessed.contains(method.getName.replaceAll("\\_eq\\$", "")))) {
+      for (method <- methods if (!alreadyProcessed.contains(method.getName.replaceAll(EQ_REGEXP, "")))) {
         //note every attribute of a scala object
         //is set as protected or private
         //with two encapsulating functions
-        var methodName = method.getName.replaceAll("\\_\\$eq", "")
+        var methodName = method.getName.replaceAll(EQ_REGEXP, "")
         alreadyProcessed += methodName
         ret += makeDescriptor(methodName, methodName, base.getClass)
       }
@@ -88,7 +97,7 @@ class ScalaELResolver extends ELResolver {
     if (base == null || !base.isInstanceOf[scala.ScalaObject]) null
     else if (base != null && prop == null) null
     else {
-      val javaGetterName = "get" + toBeginningUpperCase(prop.asInstanceOf[String])
+      val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
       val javaGetMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
       if (javaGetMethod != null && javaGetMethod.size() > 0) {
@@ -112,7 +121,7 @@ class ScalaELResolver extends ELResolver {
       null
     } else {
 
-      val javaGetterName = "get" + toBeginningUpperCase(prop.asInstanceOf[String])
+      val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
 
       val javaMethod = ReflectUtil.getAllMethods(base.getClass(), javaGetterName, 0)
       if (javaMethod != null && javaMethod.size() > 0) {
@@ -158,7 +167,7 @@ class ScalaELResolver extends ELResolver {
       true
     } else {
       val methodName: String = prop.asInstanceOf[String]
-      val setterName = methodName + "_$eq"
+      val setterName = methodName + SCALA_SET_PREFIX
       if (base.getClass.getMethod(setterName) != null) {
         elContext.setPropertyResolved(true)
         false
