@@ -159,8 +159,9 @@ class ScalaELResolver extends ELResolver {
       val seq = res.asInstanceOf[Seq[_]]
       JavaConversions.asJavaList(seq)
     } else if (res.isInstanceOf[Iterable[_]]) {
+      //for jsf 2.2 collections are usable
       val iter = res.asInstanceOf[Iterable[_]]
-      JavaConversions.asJavaIterable(iter)
+      JavaConversions.asJavaCollection(iter)
     } else {
       res
     }
