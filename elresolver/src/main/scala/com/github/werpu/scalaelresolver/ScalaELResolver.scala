@@ -149,7 +149,7 @@ class ScalaELResolver extends ELResolver {
 
     def toBeginningUpperCase(in: String): String = {
         val first = in.substring(0, 1)
-        val last = in.substring(1)
+        val last = if(in.length > 1) in.substring(1) else ""
         first.toUpperCase + last
     }
 
