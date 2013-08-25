@@ -38,8 +38,10 @@ class ScalaELResolver extends ELResolver {
     }
 
     override def getFeatureDescriptors(elContext: ELContext, base: AnyRef): java.util.Iterator[FeatureDescriptor] = {
+
+       null
         //TODO not working anymore we will utilize the new reflection api
-        if (!base.isInstanceOf[scala.ScalaObject]) {
+       /* if (!base.isInstanceOf[scala.ScalaObject]) {
             //no scala object we forward it to another el
             //resolver
             null
@@ -59,7 +61,8 @@ class ScalaELResolver extends ELResolver {
             }
 
             mutableSetAsJavaSet[FeatureDescriptor](ret).iterator
-        }
+        } */
+
 
     }
 
