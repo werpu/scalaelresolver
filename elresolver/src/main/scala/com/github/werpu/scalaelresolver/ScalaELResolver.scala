@@ -38,7 +38,7 @@ class ScalaELResolver extends ELResolver {
     }
 
     override def getFeatureDescriptors(elContext: ELContext, base: AnyRef): java.util.Iterator[FeatureDescriptor] = {
-
+        //TODO not working anymore we will utilize the new reflection api
         if (!base.isInstanceOf[scala.ScalaObject]) {
             //no scala object we forward it to another el
             //resolver
@@ -64,7 +64,7 @@ class ScalaELResolver extends ELResolver {
     }
 
     override def getType(elContext: ELContext, base: AnyRef, prop: AnyRef): Class[_] = {
-        if (base == null || !base.isInstanceOf[scala.ScalaObject]) null
+        if (base == null) null
         else if (base != null && prop == null) null
         else {
             val javaGetterName = GET_PREFIX + _toBeginningUpperCase(prop.asInstanceOf[String])
@@ -87,7 +87,7 @@ class ScalaELResolver extends ELResolver {
     }
 
     override def getValue(elContext: ELContext, base: AnyRef, prop: AnyRef): AnyRef = {
-        if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
+        if (base == null) {
             null
         } else {
 
@@ -117,7 +117,7 @@ class ScalaELResolver extends ELResolver {
 
 
     override def isReadOnly(elContext: ELContext, base: AnyRef, prop: AnyRef): Boolean = {
-        if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
+        if (base == null) {
             true
         } else {
             val methodName = prop.asInstanceOf[String]
@@ -138,7 +138,7 @@ class ScalaELResolver extends ELResolver {
             }
             javaSetMethod
         }
-        if (base != null && base.isInstanceOf[scala.ScalaObject]) {
+        if (base != null) {
             val methodName = prop.asInstanceOf[String]
             val javaSetterName = SET_PREFIX + _toBeginningUpperCase(methodName)
             val javaSetMethod: Method = findMethod(javaSetterName)
