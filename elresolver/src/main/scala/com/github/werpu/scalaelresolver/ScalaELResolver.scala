@@ -33,11 +33,11 @@ class ScalaELResolver extends ELResolver {
 
     import CONST._
 
-    def getCommonPropertyType(elContext: ELContext, o: AnyRef): Class[_] = {
+    override def getCommonPropertyType(elContext: ELContext, o: AnyRef): Class[_] = {
         o.getClass
     }
 
-    def getFeatureDescriptors(elContext: ELContext, base: AnyRef): java.util.Iterator[FeatureDescriptor] = {
+    override def getFeatureDescriptors(elContext: ELContext, base: AnyRef): java.util.Iterator[FeatureDescriptor] = {
 
         if (!base.isInstanceOf[scala.ScalaObject]) {
             //no scala object we forward it to another el
@@ -55,7 +55,7 @@ class ScalaELResolver extends ELResolver {
                 //with two encapsulating functions
                 var methodName = method.getName.replaceAll(EQ_REGEXP, "")
                 alreadyProcessed += methodName
-                ret += makeDescriptor(methodName, methodName, base.getClass)
+                ret += _makeDescriptor(methodName, methodName, base.getClass)
             }
 
             mutableSetAsJavaSet[FeatureDescriptor](ret).iterator
@@ -63,28 +63,11 @@ class ScalaELResolver extends ELResolver {
 
     }
 
-    /**
-     * backported from myfaces
-     */
-    private def makeDescriptor(name: String, description: String,
-                               objectType: Class[_]): FeatureDescriptor = {
-        val fd = new FeatureDescriptor()
-        fd.setValue(ELResolver.RESOLVABLE_AT_DESIGN_TIME, true)
-        fd.setValue(ELResolver.TYPE, objectType)
-        fd.setName(name)
-        fd.setDisplayName(name)
-        fd.setShortDescription(description)
-        fd.setExpert(false)
-        fd.setHidden(false)
-        fd.setPreferred(true)
-        fd
-    }
-
-    def getType(elContext: ELContext, base: AnyRef, prop: AnyRef): Class[_] = {
+    override def getType(elContext: ELContext, base: AnyRef, prop: AnyRef): Class[_] = {
         if (base == null || !base.isInstanceOf[scala.ScalaObject]) null
         else if (base != null && prop == null) null
         else {
-            val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
+            val javaGetterName = GET_PREFIX + _toBeginningUpperCase(prop.asInstanceOf[String])
 
             val javaGetMethod = _findMethod(base.getClass, javaGetterName)
             if (javaGetMethod != null) {
@@ -103,12 +86,12 @@ class ScalaELResolver extends ELResolver {
         }
     }
 
-    def getValue(elContext: ELContext, base: AnyRef, prop: AnyRef): AnyRef = {
+    override def getValue(elContext: ELContext, base: AnyRef, prop: AnyRef): AnyRef = {
         if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
             null
         } else {
 
-            val javaGetterName = GET_PREFIX + toBeginningUpperCase(prop.asInstanceOf[String])
+            val javaGetterName = GET_PREFIX + _toBeginningUpperCase(prop.asInstanceOf[String])
 
             val javaMethod = _findMethod(base.getClass, javaGetterName)
             if (javaMethod != null) {
@@ -133,7 +116,7 @@ class ScalaELResolver extends ELResolver {
     }
 
 
-    def isReadOnly(elContext: ELContext, base: AnyRef, prop: AnyRef): Boolean = {
+    override def isReadOnly(elContext: ELContext, base: AnyRef, prop: AnyRef): Boolean = {
         if (!(base != null && base.isInstanceOf[scala.ScalaObject])) {
             true
         } else {
@@ -147,14 +130,7 @@ class ScalaELResolver extends ELResolver {
         }
     }
 
-    def toBeginningUpperCase(in: String): String = {
-        val first = in.substring(0, 1)
-        val last = if (in.length > 1) in.substring(1) else ""
-        first.toUpperCase + last
-    }
-
-
-    def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
+    override def setValue(elContext: ELContext, base: AnyRef, prop: AnyRef, value: AnyRef) {
         def findMethod(setterName: String): Method = {
             var javaSetMethod = _findMethod(base.getClass, setterName, value.getClass)
             if (javaSetMethod == null) {
@@ -164,7 +140,7 @@ class ScalaELResolver extends ELResolver {
         }
         if (base != null && base.isInstanceOf[scala.ScalaObject]) {
             val methodName = prop.asInstanceOf[String]
-            val javaSetterName = SET_PREFIX + toBeginningUpperCase(methodName)
+            val javaSetterName = SET_PREFIX + _toBeginningUpperCase(methodName)
             val javaSetMethod: Method = findMethod(javaSetterName)
 
             if (javaSetMethod != null) {
@@ -183,11 +159,34 @@ class ScalaELResolver extends ELResolver {
     }
 
     /**
+     * backported from myfaces
+     */
+    private def _makeDescriptor(name: String, description: String,
+                                objectType: Class[_]): FeatureDescriptor = {
+        val fd = new FeatureDescriptor()
+        fd.setValue(ELResolver.RESOLVABLE_AT_DESIGN_TIME, true)
+        fd.setValue(ELResolver.TYPE, objectType)
+        fd.setName(name)
+        fd.setDisplayName(name)
+        fd.setShortDescription(description)
+        fd.setExpert(false)
+        fd.setHidden(false)
+        fd.setPreferred(true)
+        fd
+    }
+
+    private def _toBeginningUpperCase(in: String): String = {
+        val first = in.substring(0, 1)
+        val last = if (in.length > 1) in.substring(1) else ""
+        first.toUpperCase + last
+    }
+
+    /**
      * We have to map our complex types into primitives for a second fast lookup
      * @param value a value to be investigated
      * @return the class or the native type
      */
-    def _mapNativeType(value: Any) = {
+    private def _mapNativeType(value: Any) = {
         value match {
             case i: Int => java.lang.Integer.TYPE
             case i: java.lang.Integer => java.lang.Integer.TYPE
@@ -215,7 +214,7 @@ class ScalaELResolver extends ELResolver {
      * @param col the collection to be converted
      * @return  the converted collection
      */
-    def _handleCollectionConversions(col: AnyRef): AnyRef = {
+    private def _handleCollectionConversions(col: AnyRef): AnyRef = {
         //We now do also a map and iterable conversion so that
         //those can be accessed from within the el scope
         import JavaConversions._
@@ -231,7 +230,7 @@ class ScalaELResolver extends ELResolver {
     /**
      * speed optimized findFirstMethod
      */
-    def _findMethod(clazz: Class[_], methodName: String, varargs: Class[_]*): Method = {
+    private def _findMethod(clazz: Class[_], methodName: String, varargs: Class[_]*): Method = {
         try {
             clazz.getDeclaredMethod(methodName, varargs: _*)
         } catch {
@@ -252,7 +251,7 @@ class ScalaELResolver extends ELResolver {
     /**
      * speed optimized findFirstMethod
      */
-    def _findMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
+    private def _findMethod(clazz: Class[_], methodName: String, varargLength: Int): Method = {
         try {
             if (varargLength == 0) {
                 return clazz.getMethod(methodName)
