@@ -261,10 +261,10 @@ class ScalaELResolver extends ELResolver {
             case ex: NoSuchElementException => return null
         }
 
-        var method = clazz.getDeclaredMethods.find(m => m.getParameterTypes.length == varargLength && m.getName.equals(methodName)).getOrElse(null)
-        if (method == null) {
-            method = clazz.getMethods.find(m => m.getParameterTypes.length == varargLength && m.getName.equals(methodName)).getOrElse(null)
+        def findFunc(m:Method):Boolean = {
+            m.getParameterTypes.length == varargLength && m.getName.equals(methodName)
         }
-        method
+        clazz.getDeclaredMethods.find(findFunc)
+            .getOrElse(clazz.getMethods.find(findFunc).getOrElse(null))
     }
 }
