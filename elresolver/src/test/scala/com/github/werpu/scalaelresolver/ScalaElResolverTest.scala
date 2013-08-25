@@ -33,8 +33,9 @@ class ScalaElResolverTest extends FlatSpec with BeforeAndAfterEach  {
         assert(elResolver.getValue(ctx,probe,"bean2") eq probe.bean2)
     }
 
-    "words" should "be concatenated" in {
-        assert("helloworld" === "helloworld")
+    it should "should have a working setter" in {
+        val ctx = createMock(classOf[ELContext])
+        elResolver.setValue(ctx,probe,"hello1","hello")
+        assert(elResolver.getValue(ctx,probe,"hello1") == "hello")
     }
-
 }
