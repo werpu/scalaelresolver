@@ -149,7 +149,7 @@ class ScalaELResolver extends ELResolver {
 
     def toBeginningUpperCase(in: String): String = {
         val first = in.substring(0, 1)
-        val last = if(in.length > 1) in.substring(1) else ""
+        val last = if (in.length > 1) in.substring(1) else ""
         first.toUpperCase + last
     }
 
@@ -189,22 +189,22 @@ class ScalaELResolver extends ELResolver {
      */
     def _mapNativeType(value: Any) = {
         value match {
-            case i:Int => java.lang.Integer.TYPE
-            case i:java.lang.Integer => java.lang.Integer.TYPE
-            case i:Double => java.lang.Double.TYPE
-            case i:java.lang.Double => java.lang.Double.TYPE
-            case i:Long => java.lang.Long.TYPE
-            case i:java.lang.Long => java.lang.Long.TYPE
-            case i:Float => java.lang.Float.TYPE
-            case i:java.lang.Float => java.lang.Float.TYPE
-            case i:Byte => java.lang.Byte.TYPE
-            case i:java.lang.Byte => java.lang.Byte.TYPE
-            case i:Short => java.lang.Short.TYPE
-            case i:java.lang.Short => java.lang.Short.TYPE
-            case i:Boolean => java.lang.Boolean.TYPE
-            case i:java.lang.Boolean => java.lang.Boolean.TYPE
-            case i:Char => java.lang.Character.TYPE
-            case i:java.lang.Character => java.lang.Character.TYPE
+            case i: Int => java.lang.Integer.TYPE
+            case i: java.lang.Integer => java.lang.Integer.TYPE
+            case i: Double => java.lang.Double.TYPE
+            case i: java.lang.Double => java.lang.Double.TYPE
+            case i: Long => java.lang.Long.TYPE
+            case i: java.lang.Long => java.lang.Long.TYPE
+            case i: Float => java.lang.Float.TYPE
+            case i: java.lang.Float => java.lang.Float.TYPE
+            case i: Byte => java.lang.Byte.TYPE
+            case i: java.lang.Byte => java.lang.Byte.TYPE
+            case i: Short => java.lang.Short.TYPE
+            case i: java.lang.Short => java.lang.Short.TYPE
+            case i: Boolean => java.lang.Boolean.TYPE
+            case i: java.lang.Boolean => java.lang.Boolean.TYPE
+            case i: Char => java.lang.Character.TYPE
+            case i: java.lang.Character => java.lang.Character.TYPE
             case _ => value.getClass
         }
     }
@@ -261,13 +261,10 @@ class ScalaELResolver extends ELResolver {
             case ex: NoSuchElementException => return null
         }
 
-        for (m <- clazz.getDeclaredMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
-            return m
+        var method = clazz.getDeclaredMethods.find(m => m.getParameterTypes.length == varargLength && m.getName.equals(methodName)).getOrElse(null)
+        if (method == null) {
+            method = clazz.getMethods.find(m => m.getParameterTypes.length == varargLength && m.getName.equals(methodName)).getOrElse(null)
         }
-        for (m <- clazz.getMethods if m.getParameterTypes.length == varargLength && m.getName.equals(methodName)) {
-            return m
-        }
-
-        null
+        method
     }
 }
