@@ -7,8 +7,7 @@ import javax.el.{ELContext, ELResolver}
 import java.beans.FeatureDescriptor
 import java.lang.reflect.Method
 
-import collection.JavaConversions._
-import scala.collection.{mutable, JavaConversions}
+import scala.collection.JavaConversions
 
 /**
  *
