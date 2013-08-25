@@ -187,32 +187,25 @@ class ScalaELResolver extends ELResolver {
      * @param value a value to be investigated
      * @return the class or the native type
      */
-    def _mapNativeType(value: AnyRef) = {
-        if (value.isInstanceOf[Int] || value.isInstanceOf[java.lang.Integer]) {
-            Integer.TYPE
-        }
-        else if (value.isInstanceOf[Double] || value.isInstanceOf[java.lang.Double]) {
-            java.lang.Double.TYPE
-        }
-        else if (value.isInstanceOf[Long] || value.isInstanceOf[java.lang.Long]) {
-            java.lang.Long.TYPE
-        }
-        else if (value.isInstanceOf[Float] || value.isInstanceOf[java.lang.Float]) {
-            java.lang.Float.TYPE
-        }
-        else if (value.isInstanceOf[Byte] || value.isInstanceOf[java.lang.Byte]) {
-            java.lang.Byte.TYPE
-        }
-        else if (value.isInstanceOf[Short] || value.isInstanceOf[java.lang.Short]) {
-            java.lang.Short.TYPE
-        }
-        else if (value.isInstanceOf[Boolean] || value.isInstanceOf[java.lang.Boolean]) {
-            java.lang.Boolean.TYPE
-        }
-        else if (value.isInstanceOf[Char] || value.isInstanceOf[java.lang.Character]) {
-            java.lang.Character.TYPE
-        } else {
-            value.getClass
+    def _mapNativeType(value: Any) = {
+        value match {
+            case i:Int => java.lang.Integer.TYPE
+            case i:java.lang.Integer => java.lang.Integer.TYPE
+            case i:Double => java.lang.Double.TYPE
+            case i:java.lang.Double => java.lang.Double.TYPE
+            case i:Long => java.lang.Long.TYPE
+            case i:java.lang.Long => java.lang.Long.TYPE
+            case i:Float => java.lang.Float.TYPE
+            case i:java.lang.Float => java.lang.Float.TYPE
+            case i:Byte => java.lang.Byte.TYPE
+            case i:java.lang.Byte => java.lang.Byte.TYPE
+            case i:Short => java.lang.Short.TYPE
+            case i:java.lang.Short => java.lang.Short.TYPE
+            case i:Boolean => java.lang.Boolean.TYPE
+            case i:java.lang.Boolean => java.lang.Boolean.TYPE
+            case i:Char => java.lang.Character.TYPE
+            case i:java.lang.Character => java.lang.Character.TYPE
+            case _ => value.getClass
         }
     }
 
